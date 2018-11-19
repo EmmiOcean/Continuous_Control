@@ -22,7 +22,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 class Agent():
     """Interacts with and learns from the environment."""
     
-    def __init__(self, state_size, action_size, random_seed):
+    def __init__(self, state_size, action_size, num_agents, random_seed):
         """Initialize an Agent object.
         
         Params
@@ -34,6 +34,7 @@ class Agent():
         self.state_size = state_size
         self.action_size = action_size
         self.seed = random.seed(random_seed)
+        self.num_agents = num_agents
 
         # Actor Network (w/ Target Network)
         self.actor_local = Actor(state_size, action_size, random_seed).to(device)
@@ -61,7 +62,7 @@ class Agent():
             
     def learnFromExperience(self):
         if len(self.memory) > BATCH_SIZE:
-            for _ in range(NUM_AGENTS):
+            for _ in range(self.num_agents):
                 experiences = self.memory.sample()
                 self.learn(experiences, GAMMA)
 
@@ -73,7 +74,7 @@ class Agent():
             action = self.actor_local(state).cpu().data.numpy()
         self.actor_local.train()
         if add_noise:
-            for i in range(NUM_AGENTS):
+            for i in range(self.num_agents):
                 action[i] += self.noise.sample()
         return np.clip(action, -1, 1)
 
