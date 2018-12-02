@@ -1,5 +1,5 @@
 # Conclusion and Outlook
-In this article, I discuss the training result of the implemented **Continous Control for the Reacher Environment**.
+In this article, I discuss the training result of the implemented **Continous Control for the Reacher Environment**.  
 I solved the given problem with the DDPG algorithm since DDPG works very well in continuous action space.
 
 ## Learning Algorithm
@@ -12,17 +12,30 @@ The actor was initialized:
 * Adam Optimzer was used to caluclate loss
 
 #### - Critic
-*Build a critic (value) network that maps (state, action) pairs -> Q-values.*
+*Build a critic (value) network that maps (state, action) pairs -> Q-values.*  
 The critic was initialized;
 * Fully connected - 128 -> 128 -> Q-Value
 * ReLu Activation Function 
 * first Layer with - BatchNorm1d(x)
 * Adam Optimzer was used to caluclate loss
 
+### Deep Deterministic Policy Gradient (DDPG)
+In contrast to other Actor-Critic methods, the critic in DDPG is used to approximate the maximizer over the Q-values of the next state.  
+This is actually differnet to classic Actor-Crtitic approaches. DDPG is preferably used in continuous action spaces.    
+* The actor tries to learn the best action argmax<sub>a</sub>( Q(s,a) )  
+* The critic learns to evaluate the optimal action-value function by using the actor's best believed action.
 
-### Experience Replay
+Update policy and value parameters   
+* Q<sub>targets</sub> = reward + &gamma; &middot; critic<sub>target</sub>(s<sub>next</sub>, actor<sub>target</sub>(s<sub>next</sub>))  
+* Q<sub>expected</sub> = critic<sub>local</sub>(s, actions)  
+* critic<sub>loss</sub> = torch.nn.functional.mse_loss( Q<sub>expected</sub>, Q<sub>targets</sub> )
+        
+#### Soft-Target Update 
+Soft-Update was used to update target network in each step with a update rate &tau;  
+&Theta;<sub>target</sub> = &tau; &middot; &Theta;<sub>local</sub> + (1 - &tau;) &middot; &Theta;<sub>local</sub>
 
-Fixed-size buffer to store experience tuples and use them for training
+#### Experience Replay
+Fixed-size buffer to store experience tuples and use them again for training. This can break correlations.
 
 ## Hyperparameters
 * Replay Buffer size - BUFFER_SIZE = int(1e5)
